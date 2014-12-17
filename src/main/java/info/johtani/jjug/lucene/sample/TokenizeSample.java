@@ -37,9 +37,10 @@ public class TokenizeSample {
     public static void main(String[] args) {
 
         String[] texts = {
+            "johtani talks about lucene and kuromoji.",
             "JJUGナイトセミナーでLuceneと日本語検索についてjohtaniが話をしました。",
-            "JJUG CCCでElasticsearchとKibanaについてjohtaniが話をしました。",
-            "Elasticsearch勉強会でKibana4についてjohtaniが話をしました。"
+//            "JJUG CCCでElasticsearchとKibanaについてjohtaniが話をしました。",
+//            "Elasticsearch勉強会でKibana4についてjohtaniが話をしました。"
         };
 
         Analyzer analyzer = getAnalyzer();
@@ -55,29 +56,30 @@ public class TokenizeSample {
         Analyzer analyzer;
 
         //一般的に使われるAnalyzer
-        //analyzer = new StandardAnalyzer();
+        analyzer = new StandardAnalyzer();
 
         //日本語用Analyzer
         //analyzer = new JapaneseAnalyzer();
 
         //AnalyzerをTokenizer、TokenFilterで構成してみる
-        analyzer = new Analyzer() {
-
-            @Override
-            protected TokenStreamComponents createComponents(String s, Reader reader) {
-
-                //KuromojiのTokenizer
-                Tokenizer tokenizer = new JapaneseTokenizer(reader, null, false, JapaneseTokenizer.Mode.NORMAL);
-                TokenStream tokenStream;
-                //単語を基本形に変換するTokenFilter
-                tokenStream = new JapaneseBaseFormFilter(tokenizer);
-                //単語の代わりに、単語の読みに変換するTokenFilter
-                tokenStream = new JapaneseReadingFormFilter(tokenStream);
-
-                return new TokenStreamComponents(tokenizer, tokenStream);
-            }
-
-        };
+//
+//        analyzer = new Analyzer() {
+//
+//            @Override
+//            protected TokenStreamComponents createComponents(String s, Reader reader) {
+//
+//                //KuromojiのTokenizer
+//                Tokenizer tokenizer = new JapaneseTokenizer(reader, null, false, JapaneseTokenizer.Mode.NORMAL);
+//                TokenStream tokenStream;
+//                //単語を基本形に変換するTokenFilter
+//                tokenStream = new JapaneseBaseFormFilter(tokenizer);
+//                //単語の代わりに、単語の読みに変換するTokenFilter
+//                tokenStream = new JapaneseReadingFormFilter(tokenStream);
+//
+//                return new TokenStreamComponents(tokenizer, tokenStream);
+//            }
+//
+//        };
 
 
         return analyzer;
