@@ -18,11 +18,14 @@ package info.johtani.jjug.lucene.sample;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.ja.JapaneseAnalyzer;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.ja.*;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.util.TokenizerFactory;
 
 import java.io.IOException;
+import java.io.Reader;
 
 /**
  * Tokenize sample for JJUG Night Seminar
@@ -39,15 +42,45 @@ public class TokenizeSample {
             "Elasticsearch勉強会でKibana4についてjohtaniが話をしました。"
         };
 
-        Analyzer analyzer;
+        Analyzer analyzer = getAnalyzer();
 
-        //analyzer = new StandardAnalyzer();
-        analyzer = new JapaneseAnalyzer();
 
         for (String text : texts) {
             printToken(text, analyzer);
         }
         analyzer.close();
+    }
+
+    private static Analyzer getAnalyzer(){
+        Analyzer analyzer;
+
+        //一般的に使われるAnalyzer
+        //analyzer = new StandardAnalyzer();
+
+        //日本語用Analyzer
+        //analyzer = new JapaneseAnalyzer();
+
+        //AnalyzerをTokenizer、TokenFilterで構成してみる
+        analyzer = new Analyzer() {
+
+            @Override
+            protected TokenStreamComponents createComponents(String s, Reader reader) {
+
+                //KuromojiのTokenizer
+                Tokenizer tokenizer = new JapaneseTokenizer(reader, null, false, JapaneseTokenizer.Mode.NORMAL);
+                TokenStream tokenStream;
+                //単語を基本形に変換するTokenFilter
+                tokenStream = new JapaneseBaseFormFilter(tokenizer);
+                //単語の代わりに、単語の読みに変換するTokenFilter
+                tokenStream = new JapaneseReadingFormFilter(tokenStream);
+
+                return new TokenStreamComponents(tokenizer, tokenStream);
+            }
+
+        };
+
+
+        return analyzer;
     }
 
 
